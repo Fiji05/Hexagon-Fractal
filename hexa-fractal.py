@@ -1,19 +1,10 @@
 import turtle
 import random
-
-tw = turtle.Screen()
-tw.screensize(2000, 2000)
-tw.bgcolor("black")
-
-turtle.penup()
-turtle.back(200)
-turtle.right(90)
-turtle.forward(350)
-turtle.left(90)
-turtle.color("white")
-turtle.speed("fastest")
-turtle.shape("circle")
-turtle.shapesize(0.01)
+import cairosvg
+import os
+import tempfile
+import canvasvg
+import shutil
 
 bottom = {}
 bot_right = {}
@@ -58,10 +49,10 @@ def draw_hexagon():
     turtle.penup()
 
 
-def draw_fractal():
+def draw_fractal(amt):
     x3, y3 = random.randint(1, 200), random.randint(1, 200)
 
-    for i in range(100000):
+    for i in range(amt):
         point_dict = random.choice([bottom, bot_right, top_right, top, top_left, bot_left])
 
         x1, y1 = list(point_dict.items())[0]
@@ -77,5 +68,38 @@ def draw_fractal():
         turtle.stamp()
         turtle.penup()
 
-draw_hexagon()
-draw_fractal()
+while True:
+    amt = int(input("Enter amount of points to create: "))   
+
+    if amt:
+        tw = turtle.Screen()
+        tw.screensize(2000, 2000)
+        tw.bgcolor("black")
+
+        turtle.penup()
+        turtle.back(200)
+        turtle.right(90)
+        turtle.forward(350)
+        turtle.left(90)
+        turtle.color("white")
+        turtle.speed("fastest")
+        turtle.shape("circle")
+        turtle.shapesize(0.01)
+
+        draw_hexagon()
+        draw_fractal(amt)
+
+        nameSav = f"fractal_{amt}_points.png"
+        tmpdir = tempfile.mkdtemp()
+        tmpfile = os.path.join(tmpdir, 'tmp.svg')
+        ts = turtle.getscreen().getcanvas()
+        canvasvg.saveall(tmpfile, ts)
+        with open(tmpfile) as svg_input, open(nameSav, 'wb') as png_output:
+            cairosvg.svg2png(bytestring=svg_input.read(), write_to=png_output)
+        shutil.rmtree(tmpdir)  # clean up temp file(s)
+
+
+        break
+    
+    else:
+        continue
